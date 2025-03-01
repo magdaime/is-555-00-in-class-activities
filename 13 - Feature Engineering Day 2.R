@@ -11,19 +11,43 @@ outlier_candidates <- c('age', 'sib_sp', 'parch', 'fare')
 
 
 # calculate extreme threshold caps based on 99th percentile
+df %>% 
+  select(all_of(outlier_candidates)) %>% 
+  summary()
+
+df %>% 
+  select(all_of(outlier_candidates)) %>% 
+  pivot_longer(everything()) %>% 
+  ggplot(aes(y = value, fill = name)) +
+  geom_boxplot() +
+  facet_wrap(~name, nrow = 1, scales = 'free_y')+
+  theme_bw()
+
+
+age_cap <- quantile(df$age, .99)
+# sib_sp_cap <- quantile(df$sib_sp, .99)
+# parch_cap <- quantile(df$parch, .99)
+fare_cap <- quantile(df$fare, .99)
+
+age_cap <- quantile(pull(df, age), .99)
+# sib_sp_cap <- quantile(pull(df, sib_sp), .99)
+# parch_cap <- quantile(pull(df, parch), .99)
+fare_cap <- quantile(pull(df, fare), .99)
+
 
 
 # Now check how many are beyond the percentile caps
+df %>% 
+  summarize(fare_over_cap = sum(fare > fare_cap))
+
 
 # cap age and fare, and check work before saving
 
+df %>% 
+  mutate(fare = if_else(fare > fare_cap, fare_cap, fare))
 
 
 # save the result to df
-
-
-
-
 
 
 
